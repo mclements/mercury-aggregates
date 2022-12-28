@@ -3,13 +3,264 @@
 #+author: Mark Clements
 #+date: 2022-12-28
 
-* Introduction
+** Introduction
 
 This is a Mercury library to provide bag and set aggregates for Mercury.
 
 The motivation for this library is to provide aggregates that are comparable to aggregates provided by Prolog (e.g. XSB and SWI-Prolog) and Datalog (e.g. Soufflé). This suggests working with nondeterministic predicates rather than other data structures.
 
-* Example
+** Documentation
+
+#+begin_src sh :exports results :results output :eval yes
+head -n 242 aggregates.m
+#+end_src
+
+#+RESULTS:
+#+begin_example
+%--------------------------------------------------%
+% Copyright (C) 2022 Mark Clements.
+% This file is distributed under the terms specified in COPYING.
+%--------------------------------------------------%
+%
+% File: aggregates.m.
+% Authors: mclements
+% Stability: low.
+%
+% This module defines bag and set aggregates with nested submodules for
+% floats and ints.
+%
+%--------------------------------------------------%
+%--------------------------------------------------%
+
+:- module aggregates.
+
+:- interface.
+
+:- import_module list.
+
+    % bag_aggr(Predicate, Aggregator, Initial, Result) returns a bag aggregate
+    % based on a predicate using an aggregator with an initial value. 
+    % This uses bag semantics and assumes that the aggregator does not depend
+    % on the order of the (unsorted) aggregate.
+    %
+:- pred bag_aggr(pred(T)::(pred(out) is nondet),
+		 pred(T,U,U)::pred(in,in,out) is det, U::in, U::out) is det.
+
+    % bag_count(Predicate, Result) returns a bag count.
+    % This has the same semantics as bag_aggr.
+    %
+:- pred bag_count(pred(T)::(pred(out) is nondet), int::out) is det.
+
+    % bag_max(Predicate, Initial, Result) returns a max aggregate.
+    %
+:- pred bag_max(pred(T)::(pred(out) is nondet), T::in, T::out) is det.
+
+    % bag_min(Predicate, Initial, Result) returns a min aggregate.
+    %
+:- pred bag_min(pred(T)::(pred(out) is nondet), T::in, T::out) is det.
+
+    % bag_solutions(Predicate, List) returns an unsorted bag of solutions
+    % as a list.
+:- pred bag_solutions(pred(T)::(pred(out) is nondet), list(T)::out) is det.
+
+    % set_max(Predicate, Initial, Result) returns a max aggregate.
+    %
+:- pred set_max(pred(T)::(pred(out) is nondet), T::in, T::out) is det.
+
+    % set_min(Predicate, Initial, Result) returns a min aggregate.
+    %
+:- pred set_min(pred(T)::(pred(out) is nondet), T::in, T::out) is det.
+
+    % bag_solutions(Predicate, List) returns an unsorted bag of solutions
+    % as a list.
+
+    % set_count(Predicate, Result) returns a set count.
+    %
+:- pred set_count(pred(T)::(pred(out) is nondet), int::out) is det.
+
+:- module aggregates.floats.
+:- interface.
+:- import_module float.
+
+    % bag_max(Predicate, Result) returns a max aggregate.
+    % Returns min if the count is less than 1.
+    %
+:- pred bag_max(pred(float)::(pred(out) is nondet), float::out) is det.
+
+    % bag_min(Predicate, Result) returns a min aggregate.
+    % Returns max if the count is less than 1.
+    %
+:- pred bag_min(pred(float)::(pred(out) is nondet), float::out) is det.
+
+    % bag_sum(Predicate, Result) returns a bag sum aggregate.
+    % This has the same semantics as bag_aggr.
+    %
+:- pred bag_sum(pred(float)::(pred(out) is nondet), float::out) is det.
+
+    % bag_avg(Predicate, Result) returns a bag average aggregate.
+    % This has the same semantics as bag_aggr.
+    % Returns nan if the count is less than 1.
+    %
+:- pred bag_avg(pred(float)::(pred(out) is nondet), float::out) is det.
+
+    % bag_mean(Predicate, Result) returns a bag average aggregate.
+    % This has the same semantics as bag_aggr.
+    % Returns nan if the count is less than 1.
+    % This is an alias for bag_avg.
+    %
+:- pred bag_mean(pred(float)::(pred(out) is nondet), float::out) is det.
+
+    % bag_geom_mean(Predicate, Result) returns a bag geometric average aggregate.
+    % This has the same semantics as bag_aggr.
+    % Returns nan if the count is less than 1.
+    %
+:- pred bag_geom_mean(pred(float)::(pred(out) is nondet), float::out) is det.
+
+    % bag_var(Predicate, Result) returns a bag sample variance aggregate.
+    % Returns nan if the count is less than 2.
+    % This has the same semantics as bag_aggr.
+    %
+:- pred bag_var(pred(float)::(pred(out) is nondet), float::out) is det.
+
+    % bag_median(Predicate, Result) returns a bag median aggregate.
+    % Returns nan if the count is less than 1.
+    %
+:- pred bag_median(pred(float)::(pred(out) is nondet), float::out) is det.
+
+    % bag_quantile(Predicate, Quantile, Result) returns a bag quantile aggregate.
+    % Returns nan if the count is less than 1.
+    %
+:- pred bag_quantile(pred(float)::(pred(out) is nondet), float::in, float::out)
+   is det.
+
+    % bag_summary(Predicate, Quantile, Result) returns a bag summary
+    % that includes {Minimum, FirstQuartile, Median, Mean, ThirdQuartile, Maximum}.
+    % This has the same format as R's summary() for a numeric vector.
+    %
+:- pred bag_summary(pred(float)::(pred(out) is nondet),
+		    {float,float,float,float,float,float}::out) is det.
+
+    % set_max(Predicate, Result) returns a max aggregate.
+    % Returns min if the count is less than 1.
+    %
+:- pred set_max(pred(float)::(pred(out) is nondet), float::out) is det.
+
+    % set_min(Predicate, Result) returns a min aggregate.
+    % Returns max if the count is less than 1.
+    %
+:- pred set_min(pred(float)::(pred(out) is nondet), float::out) is det.
+
+    % set_sum(Predicate, Result) returns a set sum aggregate.
+    %
+:- pred set_sum(pred(float)::(pred(out) is nondet), float::out) is det.
+
+    % set_avg(Predicate, Result) returns a set average aggregate.
+    % Returns nan if the count is less than 1.
+    %
+:- pred set_avg(pred(float)::(pred(out) is nondet), float::out) is det.
+
+    % set_mean(Predicate, Result) returns a set average aggregate.
+    % Returns nan if the count is less than 1.
+    % This is an alias for set_avg.
+    %
+:- pred set_mean(pred(float)::(pred(out) is nondet), float::out) is det.
+
+    % set_geom_mean(Predicate, Result) returns a set geometric average aggregate.
+    % Returns nan if the count is less than 1.
+    %
+:- pred set_geom_mean(pred(float)::(pred(out) is nondet), float::out) is det.
+
+    % set_var(Predicate, Result) returns a set sample variance aggregate.
+    % Returns nan if the count is less than 2.
+    %
+:- pred set_var(pred(float)::(pred(out) is nondet), float::out) is det.
+
+    % set_median(Predicate, Result) returns a set median aggregate.
+    % Returns nan if the count is less than 1.
+    %
+:- pred set_median(pred(float)::(pred(out) is nondet), float::out) is det.
+
+    % set_quantile(Predicate, Quantile, Result) returns a bag quantile aggregate.
+    % Returns nan if the count is less than 1.
+    %
+:- pred set_quantile(pred(float)::(pred(out) is nondet), float::in, float::out)
+   is det.
+
+    % set_summary(Predicate, Quantile, Result) returns a set summary
+    % that includes {Minimum, FirstQuartile, Median, Mean, ThirdQuartile, Maximum}.
+    % This has the same format as R's summary() for a distinct numeric vector.
+    %
+:- pred set_summary(pred(float)::(pred(out) is nondet),
+		    {float,float,float,float,float,float}::out) is det.
+
+    % bag_cum_sum(Predicate(By,X)::in, Predicate(By,CumSum)::out) takes a predicate
+    % with a By value and an X value and outputs a predicate with the By value and a bag 
+    % cumulative sum for the X values sorted by the By value.
+    %
+:- pred bag_cum_sum(pred(T,float)::in(pred(out,out) is nondet),
+		    pred(T,float)::out(pred(out,out) is nondet)) is det.
+
+    % bag_cum_sum(Predicate(By,X)) = Predicate(By,CumSum) takes a predicate
+    % with a By value and an X value and returns a predicate with the By value and a bag 
+    % cumulative sum for the X value sorted by the By value.
+    %
+:- func bag_cum_sum(pred(T,float)::in(pred(out,out) is nondet)) =
+   (pred(T,float)::out(pred(out,out) is nondet)) is det.
+
+    % bag_row_number(Predicate(By)::in, Predicate(By,RowNumber)::out) takes a predicate
+    % with a By value and outputs a predicate with the By value and a bag 
+    % cumulative sum for the X value sorted by the By value.
+    %
+:- pred bag_row_number(pred(T)::in(pred(out) is nondet),
+		   pred(T,int)::out(pred(out,out) is nondet)) is det.
+    % bag_row_number(Predicate(By)) = Predicate(By,RowNumber) takes a predicate
+    % with a By value and returns a predicate with the By value and a bag 
+    % row number sorted by the By value.
+    %
+:- func bag_row_number(pred(T)::in(pred(out) is nondet)) = 
+   (pred(T,int)::out(pred(out,out) is nondet)) is det.
+
+:- end_module aggregates.floats.
+
+:- module aggregates.ints.
+:- interface.
+:- import_module int.
+
+    % bag_max(Predicate, Result) returns a max aggregate.
+    % Returns min_int if the count is less than 1.
+    %
+:- pred bag_max(pred(int)::(pred(out) is nondet), int::out) is det.
+
+    % bag_min(Predicate, Result) returns a min aggregate.
+    % Returns max_int if the count is less than 1.
+    %
+:- pred bag_min(pred(int)::(pred(out) is nondet), int::out) is det.
+
+    % bag_sum(Predicate, Result) returns a bag sum aggregate.
+    % This has the same semantics as bag_aggr.
+    % Returns 0 if the count is less than 1.
+    %
+:- pred bag_sum(pred(int)::(pred(out) is nondet), int::out) is det.
+
+    % set_max(Predicate, Result) returns a max aggregate.
+    % Returns min_int if the count is less than 1.
+    %
+:- pred set_max(pred(int)::(pred(out) is nondet), int::out) is det.
+
+    % set_min(Predicate, Result) returns a min aggregate.
+    % Returns max_int if the count is less than 1.
+    %
+:- pred set_min(pred(int)::(pred(out) is nondet), int::out) is det.
+
+    % set_sum(Predicate, Result) returns a set sum aggregate.
+    % Returns 0 if the count is less than 1.
+    %
+:- pred set_sum(pred(int)::(pred(out) is nondet), int::out) is det.
+:- end_module aggregates.ints.
+#+end_example
+
+
+** Example
 
 For the following example code:
 
