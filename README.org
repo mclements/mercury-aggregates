@@ -9,7 +9,7 @@ This is a Mercury module to provide bag and set aggregates for Mercury.
 
 The motivation for this module is to provide aggregates that are comparable to aggregates provided by Prolog (e.g. XSB and SWI-Prolog) and Datalog (e.g. Soufflé). This suggests working with nondeterministic predicates rather than other data structures.
 
-This is an exploratory exercise, so that the API is likely to change. In particular, the current implementation for =bag_row_number= and =bag_cum_sum= are experimental.
+This is an exploratory exercise, so that the API is likely to change. In particular, the current implementations for =bag_row_number= and =bag_cum_sum= are experimental.
 
 The =aggregates= module includes submodules for =floats= and =ints=.
 
