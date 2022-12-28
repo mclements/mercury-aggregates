@@ -1,0 +1,106 @@
+# (poly-org-mode)
+#+title: aggregates: bag and set aggregates for Mercury
+#+author: Mark Clements
+#+date: 2022-12-28
+
+* Introduction
+
+This is a Mercury library to provide bag and set aggregates for Mercury.
+
+The motivation for this library is to provide aggregates that are comparable to aggregates provided by Prolog (e.g. XSB and SWI-Prolog) and Datalog (e.g. Soufflé). This suggests working with nondeterministic predicates rather than other data structures.
+
+* Example
+
+For the following example code:
+
+#+begin_src sh :exports output :results output :eval no
+cat test.m
+#+end_src
+
+#+RESULTS:
+#+begin_example
+:- module test.
+
+:- interface.
+:- import_module io.
+:- pred main(io::di, io::uo) is det.
+
+:- implementation.
+:- import_module list, int, float, string, maybe, solutions.
+:- import_module aggregates, aggregates.floats.
+
+:- type maybe_date ---> date(year::int, month::int, day::int); no.
+:- pred bag_max_date(pred(maybe_date)::(pred(out) is nondet), maybe_date::out) is det.
+bag_max_date(Predicate, MaxDate) :-
+    bag_max(Predicate, date(min_int,0,0), MaxDate1),
+    (if MaxDate1 = date(min_int,0,0) then MaxDate = no else MaxDate = MaxDate1).
+
+:- func nan = float.
+nan = det_to_float("NaN").
+
+:- pred patient(int::out, string::out) is multi.
+patient(1001, "Hopper").
+patient(4004, "Wirth").
+patient(3003, "Kemeny").
+patient(2002, "Gosling").
+patient(5005, "Kurtz").
+
+:- pred visit(int::out, maybe_date::out, float::out) is multi.
+visit(2002, date(2020,09,10), 6.8).
+visit(1001, date(2020,09,17), 5.5).
+visit(4004, date(2020,09,24), 8.4).
+visit(2002, date(2020,10,08), nan).
+visit(1001, no, 6.6).
+visit(3003, date(2020,11,12), nan).
+visit(4004, date(2020,11,05), 7.0).
+visit(1001, date(2020,11,19), 5.3).
+
+main(!IO) :-
+    print_line("{Id, Lastname, SumScores, AvgScores, MaxDate}", !IO),
+    aggregate((pred({Id,Lastname,Sum,Avg,MaxDate}::out) is nondet :-
+	           patient(Id,Lastname),
+	           Scores = (pred(Score::out) is nondet :- visit(Id,_,Score), \+is_nan(Score)),
+	  	   bag_sum(Scores, Sum),
+	           bag_avg(Scores, Avg),
+	           Dates = (pred(Date::out) is nondet :- visit(Id,Date,_), Date\=no),
+	           bag_max_date(Dates, MaxDate)),
+	      print_line,
+	      !IO),
+    print_line("{Id, RowNumber, Date, Score, CumScore}", !IO),
+    aggregate((pred({Id,RowNumber,Datei,Scorei,CumSumi}::out) is nondet :-
+	           patient(Id,_), 
+	           Combined = (pred(Date::out,Score::out) is nondet :- visit(Id,Date,Score)), 
+		   Combined(Datei,Scorei),
+	  	   bag_cum_sum(Combined)(Datei,CumSumi),
+		   Dates = (pred(Date::out) is nondet :- Combined(Date,_)),
+		   bag_row_number(Dates)(Datei,RowNumber)),
+	      print_line,
+	      !IO).
+
+#+end_example
+
+We can run the following code to get the subsequent output:
+
+#+begin_src bash :exports both :results output :eval yes
+mmc --make test.m && ./test
+#+end_src
+
+#+RESULTS:
+#+begin_example
+{Id, Lastname, SumScores, AvgScores, MaxDate}
+{1001, "Hopper", 17.4, 5.8, date(2020, 11, 19)}
+{2002, "Gosling", 6.8, 6.8, date(2020, 10, 8)}
+{3003, "Kemeny", 0.0, nan, date(2020, 11, 12)}
+{4004, "Wirth", 15.4, 7.7, date(2020, 11, 5)}
+{5005, "Kurtz", 0.0, nan, no}
+{Id, RowNumber, Date, Score, CumScore}
+{1001, 1, date(2020, 9, 17), 5.5, 5.5}
+{1001, 2, date(2020, 11, 19), 5.3, 10.8}
+{1001, 3, no, 6.6, 17.4}
+{2002, 1, date(2020, 9, 10), 6.8, 6.8}
+{2002, 2, date(2020, 10, 8), nan, nan}
+{3003, 1, date(2020, 11, 12), nan, nan}
+{4004, 1, date(2020, 9, 24), 8.4, 8.4}
+{4004, 2, date(2020, 11, 5), 7.0, 15.4}
+#+end_example
+
