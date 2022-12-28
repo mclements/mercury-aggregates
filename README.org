@@ -13,7 +13,7 @@ The motivation for this library is to provide aggregates that are comparable to 
 
 For the following example code:
 
-#+begin_src sh :exports output :results output :eval no
+#+begin_src sh :exports results :results output :eval no
 cat test.m
 #+end_src
 
