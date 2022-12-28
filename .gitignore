@@ -1,0 +1,6 @@
+Mercury/
+*.err
+*.mh
+*~
+test
+test_window
