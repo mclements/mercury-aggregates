@@ -63,7 +63,7 @@ main(!IO) :-
     print_line(Summary4, !IO),
     print_line("{Id, RowNumber, Date, Score, CumScore}", !IO),
     aggregate((pred({Id,RowNumber,Datei,Scorei,CumSumi}::out) is nondet :-
-	           patient(Id,_), %% projections and joins are easy
+	           patient(Id,_),
 	           Combined = (pred(Date::out,Score::out) is nondet :- visit(Id,Date,Score)), 
 		   Combined(Datei,Scorei),
 	  	   bag_cum_sum(Combined)(Datei,CumSumi),
