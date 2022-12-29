@@ -61,6 +61,19 @@
     %
 :- pred set_count(pred(T)::(pred(out) is nondet), int::out) is det.
 
+    % bag_row_number(Predicate(By)::in, Predicate(By,RowNumber)::out) takes a predicate
+    % with a By value and outputs a predicate with the By value and a bag 
+    % cumulative sum for the X value sorted by the By value.
+    %
+:- pred bag_row_number(pred(T)::in(pred(out) is nondet),
+		   pred(T,int)::out(pred(out,out) is nondet)) is det.
+    % bag_row_number(Predicate(By)) = Predicate(By,RowNumber) takes a predicate
+    % with a By value and returns a predicate with the By value and a bag 
+    % row number sorted by the By value.
+    %
+:- func bag_row_number(pred(T)::in(pred(out) is nondet)) = 
+   (pred(T,int)::out(pred(out,out) is nondet)) is det.
+
 :- module aggregates.floats.
 :- interface.
 :- import_module float.
@@ -190,19 +203,6 @@
 :- func bag_cum_sum(pred(T,float)::in(pred(out,out) is nondet)) =
    (pred(T,float)::out(pred(out,out) is nondet)) is det.
 
-    % bag_row_number(Predicate(By)::in, Predicate(By,RowNumber)::out) takes a predicate
-    % with a By value and outputs a predicate with the By value and a bag 
-    % cumulative sum for the X value sorted by the By value.
-    %
-:- pred bag_row_number(pred(T)::in(pred(out) is nondet),
-		   pred(T,int)::out(pred(out,out) is nondet)) is det.
-    % bag_row_number(Predicate(By)) = Predicate(By,RowNumber) takes a predicate
-    % with a By value and returns a predicate with the By value and a bag 
-    % row number sorted by the By value.
-    %
-:- func bag_row_number(pred(T)::in(pred(out) is nondet)) = 
-   (pred(T,int)::out(pred(out,out) is nondet)) is det.
-
 :- end_module aggregates.floats.
 
 :- module aggregates.ints.
@@ -293,6 +293,15 @@ set_min(Predicate, Initial, Min) :-
 		   compare(R,X,Y),
 		   (if R = (<) then Z = X else Z = Y)),
 	      Initial, Min).
+
+bag_row_number(By,RowNumbers) :-
+    promise_equivalent_solutions[UnsortedList] (
+	unsorted_solutions(By,UnsortedList)), % bag semantics
+    sort(UnsortedList,List1),                 % sorted
+    foldl((pred(Byi::in,{I,ListIn}::in,Y::out) is det :- Y = {I+1,[{Byi,I+1}|ListIn]}),
+	  List1, {0,[]}, {_,ListOut}),
+    RowNumbers = (pred(Byi::out,Rowi::out) is nondet :- member({Byi,Rowi},ListOut)).
+bag_row_number(Predicate) = Result :- bag_row_number(Predicate,Result).
 
 :- module aggregates.floats.
 :- implementation.
@@ -437,14 +446,6 @@ bag_cum_sum(Predicate,CumSums) :-
 	  {_, CumSumList}),
     CumSums = (pred(By::out,CumSumi::out) is nondet :- member({By,CumSumi},CumSumList)).
 bag_cum_sum(Predicate) = Result :- bag_cum_sum(Predicate,Result).
-bag_row_number(By,RowNumbers) :-
-    promise_equivalent_solutions[UnsortedList] (
-	unsorted_solutions(By,UnsortedList)), % bag semantics
-    sort(UnsortedList,List1),                 % sorted
-    foldl((pred(Byi::in,{I,ListIn}::in,Y::out) is det :- Y = {I+1,[{Byi,I+1}|ListIn]}),
-	  List1, {0,[]}, {_,ListOut}),
-    RowNumbers = (pred(Byi::out,Rowi::out) is nondet :- member({Byi,Rowi},ListOut)).
-bag_row_number(Predicate) = Result :- bag_row_number(Predicate,Result).
 
 :- end_module aggregates.floats.
 

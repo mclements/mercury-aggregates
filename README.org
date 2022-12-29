@@ -16,29 +16,31 @@ The =aggregates= module includes submodules for =floats= and =ints=.
 
 *** Generic =aggregates= predicates
 
-| Bag aggregates                                   | Set aggregates                      |
-|--------------------------------------------------+-------------------------------------|
-| bag_aggr(Predicate, Aggregator, Initial, Result) |                                     |
-| bag_count(Predicate, Result)                     | set_count(Predicate, Result)        |
-| bag_max(Predicate, Initial, Result)              | set_max(Predicate, Initial, Result) |
-| bag_min(Predicate, Initial, Result)              | set_min(Predicate, Initial, Result) |
+| Bag aggregates                                     | Set aggregates                      |
+|----------------------------------------------------+-------------------------------------|
+| bag_aggr(Predicate, Aggregator, Initial, Result)   | See: solutions.aggregate            |
+| bag_count(Predicate, Result)                       | set_count(Predicate, Result)        |
+| bag_max(Predicate, Initial, Result)                | set_max(Predicate, Initial, Result) |
+| bag_min(Predicate, Initial, Result)                | set_min(Predicate, Initial, Result) |
+| bag_row_number(ByPredicate, Result(By,RowNumber))  |                                     |
+| bag_row_number(ByPredicate) = Result(By,RowNumber) |                                     |
 
-*** =aggregates.floats= predicates
+*** =aggregates.floats= predicates and functions
 
-| Bag aggregates                            | Set aggregates                         |
-|-------------------------------------------+----------------------------------------|
-| bag_max(Predicate, Result)                | set_max(Predicate, Result)             |
-| bag_min(Predicate, Result)                | set_min(Predicate, Result)             |
-| bag_sum(Predicate, Result)                | set_sum(Predicate, Result)             |
-| bag_avg(Predicate, Result)                | set_avg(Predicate, Result)             |
-| bag_mean(Predicate, Result)               | set_mean(Predicate, Result)            |
-| bag_mean(Predicate, Result)               | set_mean(Predicate, Result)            |
-| bag_geom_mean(Predicate, Result)          | set_geom_mean(Predicate, Result)       |
-| bag_var(Predicate, Result)                | set_var(Predicate, Result)             |
-| bag_median(Predicate, Result)             | set_media(Predicate, Result)           |
-| bag_quantile(Predicate, Quantile, Result) | set_media(Predicate, Quantile, Result) |
-| bag_cum_sum(Predicate(By,X), Result)      |                                        |
-| bag_row_number(Predicate, Result)         |                                        |
+| Bag aggregates                                     | Set aggregates                            |
+|----------------------------------------------------+-------------------------------------------|
+| bag_max(Predicate, Result)                         | set_max(Predicate, Result)                |
+| bag_min(Predicate, Result)                         | set_min(Predicate, Result)                |
+| bag_sum(Predicate, Result)                         | set_sum(Predicate, Result)                |
+| bag_avg(Predicate, Result)                         | set_avg(Predicate, Result)                |
+| bag_mean(Predicate, Result)                        | set_mean(Predicate, Result)               |
+| bag_mean(Predicate, Result)                        | set_mean(Predicate, Result)               |
+| bag_geom_mean(Predicate, Result)                   | set_geom_mean(Predicate, Result)          |
+| bag_var(Predicate, Result)                         | set_var(Predicate, Result)                |
+| bag_median(Predicate, Result)                      | set_median(Predicate, Result)             |
+| bag_quantile(Predicate, Quantile, Result)          | set_quantile(Predicate, Quantile, Result) |
+| bag_cum_sum(Predicate(By,X), Result(By,CumSum))    |                                           |
+| bag_cum_sum(Predicate(By,X) =  Result(By,CumSum)   |                                           |
 
 *** =aggregates.ints= predicates
 
@@ -154,6 +156,8 @@ head -n 242 aggregates.m
 #+RESULTS:
 #+begin_example
 %--------------------------------------------------%
+% vim: ft=mercury ts=4 sw=4 et
+%--------------------------------------------------%
 % Copyright (C) 2022 Mark Clements.
 % This file is distributed under the terms specified in COPYING.
 %--------------------------------------------------%
@@ -213,6 +217,19 @@ head -n 242 aggregates.m
     % set_count(Predicate, Result) returns a set count.
     %
 :- pred set_count(pred(T)::(pred(out) is nondet), int::out) is det.
+
+    % bag_row_number(Predicate(By)::in, Predicate(By,RowNumber)::out) takes a predicate
+    % with a By value and outputs a predicate with the By value and a bag 
+    % cumulative sum for the X value sorted by the By value.
+    %
+:- pred bag_row_number(pred(T)::in(pred(out) is nondet),
+		   pred(T,int)::out(pred(out,out) is nondet)) is det.
+    % bag_row_number(Predicate(By)) = Predicate(By,RowNumber) takes a predicate
+    % with a By value and returns a predicate with the By value and a bag 
+    % row number sorted by the By value.
+    %
+:- func bag_row_number(pred(T)::in(pred(out) is nondet)) = 
+   (pred(T,int)::out(pred(out,out) is nondet)) is det.
 
 :- module aggregates.floats.
 :- interface.
@@ -342,19 +359,6 @@ head -n 242 aggregates.m
     %
 :- func bag_cum_sum(pred(T,float)::in(pred(out,out) is nondet)) =
    (pred(T,float)::out(pred(out,out) is nondet)) is det.
-
-    % bag_row_number(Predicate(By)::in, Predicate(By,RowNumber)::out) takes a predicate
-    % with a By value and outputs a predicate with the By value and a bag 
-    % cumulative sum for the X value sorted by the By value.
-    %
-:- pred bag_row_number(pred(T)::in(pred(out) is nondet),
-		   pred(T,int)::out(pred(out,out) is nondet)) is det.
-    % bag_row_number(Predicate(By)) = Predicate(By,RowNumber) takes a predicate
-    % with a By value and returns a predicate with the By value and a bag 
-    % row number sorted by the By value.
-    %
-:- func bag_row_number(pred(T)::in(pred(out) is nondet)) = 
-   (pred(T,int)::out(pred(out,out) is nondet)) is det.
 
 :- end_module aggregates.floats.
 
