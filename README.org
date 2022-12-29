@@ -129,7 +129,7 @@ main(!IO) :-
 
 Note that =bag_sum=, =bag_avg= and =bag_max_date= are aggregates that return deterministic values, while =bag_cum_sum= and =bag_row_number= are window functions that return non-deterministic predicates with two variables.
 
-We can run the following code to get the subsequent output:
+We can run the code to get the subsequent output:
 
 #+begin_src bash :exports both :results output :eval yes
 mmc --make test.m && ./test
