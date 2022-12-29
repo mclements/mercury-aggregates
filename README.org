@@ -9,7 +9,7 @@ This is a module to provide bag and set aggregates for Mercury.
 
 The motivation for this module is to provide aggregates that are comparable to aggregates provided by Prolog (e.g. XSB and SWI-Prolog) and Datalog (e.g. Soufflé). This suggests working with nondeterministic predicates rather than other data structures.
 
-This is an exploratory exercise, so that the API is likely to change. In particular, the current API and implementations for =bag_row_number= and =bag_cum_sum= are experimental.
+This is an exploratory exercise, so that the API is likely to change. In particular, the current API and implementations for the =bag_row_number= and =bag_cum_sum= window functions are experimental.
 
 The =aggregates= module includes submodules for =floats= and =ints=.
 
@@ -22,6 +22,9 @@ The =aggregates= module includes submodules for =floats= and =ints=.
 | bag_count(Predicate, Result)                       | set_count(Predicate, Result)        |
 | bag_max(Predicate, Initial, Result)                | set_max(Predicate, Initial, Result) |
 | bag_min(Predicate, Initial, Result)                | set_min(Predicate, Initial, Result) |
+
+| Bag window functions                               | Set window functions      |
+|----------------------------------------------------+-------------------------------------|
 | bag_row_number(ByPredicate, Result(By,RowNumber))  |                                     |
 | bag_row_number(ByPredicate) = Result(By,RowNumber) |                                     |
 
@@ -39,8 +42,11 @@ The =aggregates= module includes submodules for =floats= and =ints=.
 | bag_var(Predicate, Result)                         | set_var(Predicate, Result)                |
 | bag_median(Predicate, Result)                      | set_median(Predicate, Result)             |
 | bag_quantile(Predicate, Quantile, Result)          | set_quantile(Predicate, Quantile, Result) |
-| bag_cum_sum(Predicate(By,X), Result(By,CumSum))    |                                           |
-| bag_cum_sum(Predicate(By,X) =  Result(By,CumSum)   |                                           |
+
+| Bag window functions                             | Set window functions |
+|--------------------------------------------------+----------------------|
+| bag_cum_sum(Predicate(By,X), Result(By,CumSum))  |                      |
+| bag_cum_sum(Predicate(By,X) = Result(By,CumSum)  |                      |
 
 *** =aggregates.ints= predicates
 
