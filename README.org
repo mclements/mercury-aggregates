@@ -14,7 +14,7 @@ This is an exploratory exercise, so that the API is likely to change. In particu
 The =aggregates= module includes submodules for =floats= and =ints=.
 
 
-*** Generic =aggregates= predicates
+*** Generic =aggregates= predicates and functions
 
 | Bag aggregates                                     | Set aggregates                      |
 |----------------------------------------------------+-------------------------------------|
