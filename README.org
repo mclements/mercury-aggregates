@@ -5,7 +5,7 @@
 
 ** Introduction
 
-This is a Mercury module to provide bag and set aggregates for Mercury.
+This is a module to provide bag and set aggregates for Mercury.
 
 The motivation for this module is to provide aggregates that are comparable to aggregates provided by Prolog (e.g. XSB and SWI-Prolog) and Datalog (e.g. Soufflé). This suggests working with nondeterministic predicates rather than other data structures.
 
@@ -120,6 +120,8 @@ main(!IO) :-
 	      !IO).
 
 #+end_example
+
+Note that =bag_sum=, =bag_avg= and =bag_max_date= are aggregates that return deterministic values, while =bag_cum_sum= and =bag_row_number= are window functions that return non-deterministic predicates with two variables.
 
 We can run the following code to get the subsequent output:
 
