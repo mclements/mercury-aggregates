@@ -150,13 +150,11 @@ mmc --make test.m && ./test
 ** Detailed documentation
 
 #+begin_src sh :exports results :results output :eval yes
-head -n 242 aggregates.m
+head -n 242 aggregates.m | tail -n 240
 #+end_src
 
 #+RESULTS:
 #+begin_example
-%--------------------------------------------------%
-% vim: ft=mercury ts=4 sw=4 et
 %--------------------------------------------------%
 % Copyright (C) 2022 Mark Clements.
 % This file is distributed under the terms specified in COPYING.
