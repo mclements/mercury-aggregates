@@ -41,15 +41,11 @@ main(!IO) :-
 	      print_line,
 	      !IO).
 
-:- pred bag_cum_sum(pred(T,float)::in(pred(out,out) is nondet),
-		    pred(T,float)::out(pred(out,out) is nondet)) is det.
 :- func bag_cum_sum(pred(T,float)::in(pred(out,out) is nondet)) =
    (pred(T,float)::out(pred(out,out) is nondet)) is det.
-:- pred bag_row_number(pred(T)::in(pred(out) is nondet),
-		   pred(T,int)::out(pred(out,out) is nondet)) is det.
 :- func bag_row_number(pred(T)::in(pred(out) is nondet)) = 
    (pred(T,int)::out(pred(out,out) is nondet)) is det.
-bag_cum_sum(Predicate,CumSums) :-
+bag_cum_sum(Predicate) = CumSums :-
     Pred = (pred({By,X}::out) is nondet :- Predicate(By,X)),
     promise_equivalent_solutions[List] (
 	unsorted_solutions(Pred, List)),
@@ -61,12 +57,10 @@ bag_cum_sum(Predicate,CumSums) :-
 	  {0.0, []},
 	  {_, CumSumList}),
     CumSums = (pred(By::out,CumSumi::out) is nondet :- member({By,CumSumi},CumSumList)).
-bag_cum_sum(Predicate) = Result :- bag_cum_sum(Predicate,Result).
-bag_row_number(By,RowNumbers) :-
+bag_row_number(By) = RowNumbers :-
     promise_equivalent_solutions[UnsortedList] (
 	unsorted_solutions(By,UnsortedList)), % bag semantics
     sort(UnsortedList,List1),                 % sorted
     foldl((pred(Byi::in,{I,ListIn}::in,Y::out) is det :- Y = {I+1,[{Byi,I+1}|ListIn]}),
 	  List1, {0,[]}, {_,ListOut}),
     RowNumbers = (pred(Byi::out,Rowi::out) is nondet :- member({Byi,Rowi},ListOut)).
-bag_row_number(Predicate) = Result :- bag_row_number(Predicate,Result).
